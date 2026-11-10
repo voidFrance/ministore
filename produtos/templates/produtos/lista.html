@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}Produtos — MiniStore{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Produtos</h1>
+        <p class="page-sub">{{ produtos|length }} {{ 'produto' if produtos|length == 1 else 'produtos' }} {{ 'cadastrado' if produtos|length == 1 else 'cadastrados' }}.</p>
+    </div>
+    <a href="{{ url_for('produtos.novo') }}" class="btn btn-primary">Novo Produto</a>
+</div>
+
+{% if produtos %}
+<div class="table-wrap">
+<table class="table">
+    <thead>
+        <tr>
+            <th>Código</th>
+            <th>Nome</th>
+            <th>Categoria</th>
+            <th class="col-num">Preço</th>
+            <th class="col-acoes">Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for produto in produtos %}
+        <tr>
+            <td class="col-mono">{{ produto.codigo }}</td>
+            <td>
+                {{ produto.nome }}
+                {% if produto.descricao %}<div class="col-muted">{{ produto.descricao }}</div>{% endif %}
+            </td>
+            <td>
+                {% if produto.categoria %}
+                    <span class="badge">{{ produto.categoria }}</span>
+                {% else %}
+                    <span class="col-muted">sem categoria</span>
+                {% endif %}
+            </td>
+            <td class="col-num">R$ {{ produto.preco|moeda }}</td>
+            <td class="col-acoes">
+                <a href="{{ url_for('produtos.editar', id=produto.id) }}" class="btn btn-secondary btn-sm">Editar</a>
+                <form action="{{ url_for('produtos.excluir', id=produto.id) }}" method="POST"
+                      class="inline-form"
+                      onsubmit="return confirm('Excluir o produto {{ produto.nome }}?')">
+                    <button type="submit" class="btn btn-danger btn-sm">Excluir</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+{% else %}
+<p class="empty">Nenhum produto cadastrado.</p>
+{% endif %}
+{% endblock %}

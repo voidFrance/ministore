@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block title %}Nova Venda — MiniStore{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Nova Venda</h1>
+        <p class="page-sub">O total e o preco unitário são calculados no servidor a partir do cadastro do produto.</p>
+    </div>
+</div>
+
+{% if not produtos %}
+<p class="empty">Cadastre um produto antes de registrar vendas.</p>
+{% else %}
+<form action="{{ url_for('vendas.nova') }}" method="POST" class="form-wide" id="form-venda">
+
+    <div class="form-group">
+        <label for="id_cliente">Cliente *</label>
+        <select id="id_cliente" name="id_cliente" class="form-control" required>
+            <option value="">selecione</option>
+            {% for cliente in clientes %}
+            <option value="{{ cliente.id }}"
+                {{ 'selected' if form.get('id_cliente')|string == cliente.id|string else '' }}>
+                {{ cliente.nome }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Itens *</label>
+        <table class="table table-inline" id="tabela-itens">
+            <thead>
+                <tr>
+                    <th>Produto</th>
+                    <th class="col-qtd">Qtd</th>
+                    <th class="col-num">Subtotal</th>
+                    <th class="col-min"></th>
+                </tr>
+            </thead>
+            <tbody id="corpo-itens">
+                {% set ids = form.getlist('id_produto') %}
+                {% set qtds = form.getlist('quantidade') %}
+                {% for i in range([ids|length, 1]|max) %}
+                <tr class="linha-item">
+                    <td>
+                        <select name="id_produto" class="form-control">
+                            <option value="">selecione</option>
+                            {% for produto in produtos %}
+                            <option value="{{ produto.id }}" data-preco="{{ produto.preco }}"
+                                {{ 'selected' if ids[i] and ids[i]|string == produto.id|string else '' }}>
+                                {{ produto.codigo }} - {{ produto.nome }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td class="col-qtd">
+                        <input type="number" name="quantidade" class="form-control" min="1" step="1"
+                               value="{{ qtds[i] if qtds|length > i else 1 }}">
+                    </td>
+                    <td class="col-num subtotal">R$ 0,00</td>
+                    <td class="col-min">
+                        <button type="button" class="btn btn-secondary btn-remover" title="Remover item">&times;</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="2" class="col-num">Total</td>
+                    <td class="col-num col-money" id="total-venda">R$ 0,00</td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+        <button type="button" class="btn btn-secondary" id="add-item">+ Adicionar item</button>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Registrar Venda</button>
+        <a href="{{ url_for('vendas.listar') }}" class="btn btn-secondary">Cancelar</a>
+    </div>
+
+</form>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const corpo = document.getElementById('corpo-itens');
+    const tabela = document.getElementById('tabela-itens');
+    const totalEl = document.getElementById('total-venda');
+    const modelo = corpo.querySelector('.linha-item');
+
+    function precoDaLinha(linha) {
+        const select = linha.querySelector('select[name="id_produto"]');
+        const opt = select.options[select.selectedIndex];
+        return parseFloat(opt ? opt.dataset.preco : 0) || 0;
+    }
+
+    function quantidadeDaLinha(linha) {
+        return parseInt(linha.querySelector('input[name="quantidade"]').value, 10) || 0;
+    }
+
+    function dinheiro(valor) {
+        return 'R$ ' + valor.toFixed(2).replace('.', ',');
+    }
+
+    function recalcular() {
+        let total = 0;
+        corpo.querySelectorAll('.linha-item').forEach(function (linha) {
+            const subtotal = precoDaLinha(linha) * quantidadeDaLinha(linha);
+            linha.querySelector('.subtotal').textContent = dinheiro(subtotal);
+            total += subtotal;
+        });
+        totalEl.textContent = dinheiro(total);
+    }
+
+    document.getElementById('add-item').addEventListener('click', function () {
+        const nova = modelo.cloneNode(true);
+        nova.querySelector('select').value = '';
+        nova.querySelector('input[name="quantidade"]').value = 1;
+        nova.querySelector('.subtotal').textContent = dinheiro(0);
+        corpo.appendChild(nova);
+        recalcular();
+    });
+
+    tabela.addEventListener('input', recalcular);
+    tabela.addEventListener('change', recalcular);
+
+    tabela.addEventListener('click', function (evento) {
+        if (!evento.target.classList.contains('btn-remover')) {
+            return;
+        }
+        if (corpo.querySelectorAll('.linha-item').length > 1) {
+            evento.target.closest('.linha-item').remove();
+        }
+        recalcular();
+    });
+
+    recalcular();
+});
+</script>
+{% endblock %}

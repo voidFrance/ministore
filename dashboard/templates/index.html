@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard — MiniStore{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <div>
+        <div class="hero-titulo">Faturamento total</div>
+        <div class="hero-valor">R$ {{ faturamento|moeda }}<small>em {{ totais.vendas }} {{ 'venda' if totais.vendas == 1 else 'vendas' }}</small></div>
+    </div>
+    <div class="hero-kpis">
+        <div class="hero-kpi">
+            <div class="rotulo">Ticket medio</div>
+            <div class="numero">R$ {{ ((faturamento / totais.vendas) if totais.vendas else 0)|moeda }}</div>
+        </div>
+        <div class="hero-kpi">
+            <div class="rotulo">Itens em catalogo</div>
+            <div class="numero">{{ totais.produtos }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="cards">
+    <a class="card" href="{{ url_for('clientes.listar') }}">
+        <div class="card-valor">{{ totais.clientes }}</div>
+        <div class="card-label">Clientes</div>
+        <span class="card-seta">ver lista &rarr;</span>
+    </a>
+    <a class="card" href="{{ url_for('categorias.listar') }}">
+        <div class="card-valor">{{ totais.categorias }}</div>
+        <div class="card-label">Categorias</div>
+        <span class="card-seta">ver lista &rarr;</span>
+    </a>
+    <a class="card" href="{{ url_for('produtos.listar') }}">
+        <div class="card-valor">{{ totais.produtos }}</div>
+        <div class="card-label">Produtos</div>
+        <span class="card-seta">ver lista &rarr;</span>
+    </a>
+    <a class="card" href="{{ url_for('vendas.listar') }}">
+        <div class="card-valor">{{ totais.vendas }}</div>
+        <div class="card-label">Vendas</div>
+        <span class="card-seta">ver lista &rarr;</span>
+    </a>
+</div>
+
+<div class="acoes-rapidas">
+    <span class="rotulo">Atalhos</span>
+    <a href="{{ url_for('clientes.novo') }}" class="btn btn-secondary btn-sm">+ Cliente</a>
+    <a href="{{ url_for('produtos.novo') }}" class="btn btn-secondary btn-sm">+ Produto</a>
+    <a href="{{ url_for('categorias.nova') }}" class="btn btn-secondary btn-sm">+ Categoria</a>
+    <a href="{{ url_for('vendas.nova') }}" class="btn btn-primary btn-sm">+ Venda</a>
+</div>
+
+<div class="panel">
+    <div class="panel-topo">
+        <div class="panel-titulo">Ultimas vendas</div>
+        <a href="{{ url_for('vendas.listar') }}" class="btn btn-secondary btn-sm">Ver todas</a>
+    </div>
+    {% if ultimas %}
+    <table class="table table-inline">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Data</th>
+                <th>Cliente</th>
+                <th class="col-num">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for venda in ultimas %}
+            <tr>
+                <td class="col-id">
+                    <a href="{{ url_for('vendas.detalhe', id=venda.id) }}" class="link-sutil">#{{ venda.id }}</a>
+                </td>
+                <td class="col-mono">{{ venda.data_venda.strftime('%d/%m/%Y %H:%M') }}</td>
+                <td>{{ venda.cliente }}</td>
+                <td class="col-num col-money">R$ {{ venda.total|moeda }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="empty">Nenhuma venda registrada ainda.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}Clientes — MiniStore{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Clientes</h1>
+        <p class="page-sub">
+            {{ clientes|length }} {{ 'cliente' if clientes|length == 1 else 'clientes' }}
+            {{ 'cadastrado' if clientes|length == 1 else 'cadastrados' }}.
+        </p>
+    </div>
+    <a href="{{ url_for('clientes.novo') }}" class="btn btn-primary">Novo Cliente</a>
+</div>
+
+{% if clientes %}
+<div class="table-wrap">
+<table class="table">
+    <thead>
+        <tr>
+            <th>Cliente</th>
+            <th>Contato</th>
+            <th class="col-cpf">CPF</th>
+            <th class="col-acoes">Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for cliente in clientes %}
+        <tr>
+            <td>
+                <div class="celula-pessoa">
+                    <span class="avatar">{{ cliente.nome[:1] }}</span>
+                    <span>
+                        <span class="nome-pessoa">{{ cliente.nome }}</span>
+                        <span class="col-muted">#{{ cliente.id }}</span>
+                    </span>
+                </div>
+            </td>
+            <td>
+                {% if cliente.email %}
+                    <a href="mailto:{{ cliente.email }}" class="link-sutil">{{ cliente.email }}</a>
+                {% else %}
+                    <span class="col-muted">—</span>
+                {% endif %}
+                <div class="col-mono">{{ cliente.telefone|default('', true) or '' }}</div>
+            </td>
+            <td class="col-mono col-cpf">{{ cliente.cpf|default('', true) or '—' }}</td>
+            <td class="col-acoes">
+                <a href="{{ url_for('clientes.editar', id=cliente.id) }}" class="btn btn-secondary btn-sm">Editar</a>
+                <form action="{{ url_for('clientes.excluir', id=cliente.id) }}" method="POST"
+                      class="inline-form"
+                      onsubmit="return confirm('Deseja excluir este cliente?')">
+                    <button type="submit" class="btn btn-danger btn-sm">Excluir</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+{% else %}
+<p class="empty">Nenhum cliente cadastrado. Comece por <a href="{{ url_for('clientes.novo') }}">cadastrar o primeiro</a>.</p>
+{% endif %}
+{% endblock %}

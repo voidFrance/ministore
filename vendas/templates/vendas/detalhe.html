@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}Venda #{{ venda.id }} — MiniStore{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Venda #{{ venda.id }}</h1>
+        <p class="page-sub">{{ venda.data_venda.strftime('%d/%m/%Y as %H:%M') }}</p>
+    </div>
+    <a href="{{ url_for('vendas.listar') }}" class="btn btn-secondary">Voltar</a>
+</div>
+
+<div class="panel">
+    <div class="panel-titulo">Cliente</div>
+    <p><strong>{{ venda.cliente }}</strong></p>
+    <p class="col-muted">
+        {{ venda.email or 'sem e-mail' }} &middot; {{ venda.telefone or 'sem telefone' }}
+    </p>
+</div>
+
+<div class="table-wrap">
+<table class="table">
+    <thead>
+        <tr>
+            <th>Código</th>
+            <th>Produto</th>
+            <th class="col-num">Qtd</th>
+            <th class="col-num">Unitário</th>
+            <th class="col-num">Subtotal</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in itens %}
+        <tr>
+            <td class="col-mono">{{ item.codigo }}</td>
+            <td>{{ item.produto }}</td>
+            <td class="col-num">{{ item.quantidade }}</td>
+            <td class="col-num">R$ {{ item.preco_unitario|moeda }}</td>
+            <td class="col-num">R$ {{ item.subtotal|moeda }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="4" class="col-num">Total</td>
+            <td class="col-num col-money">R$ {{ venda.total|moeda }}</td>
+        </tr>
+    </tfoot>
+</table>
+</div>
+{% endblock %}

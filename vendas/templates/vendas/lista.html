@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Vendas — MiniStore{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Vendas</h1>
+        <p class="page-sub">{{ vendas|length }} {{ 'venda' if vendas|length == 1 else 'vendas' }} {{ 'registrada' if vendas|length == 1 else 'registrads' }}.</p>
+    </div>
+    <a href="{{ url_for('vendas.nova') }}" class="btn btn-primary">Nova Venda</a>
+</div>
+
+{% if vendas %}
+<div class="table-wrap">
+<table class="table">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Data</th>
+            <th>Cliente</th>
+            <th class="col-num">Itens</th>
+            <th class="col-num">Total</th>
+            <th class="col-acoes">Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for venda in vendas %}
+        <tr>
+            <td class="col-id">{{ venda.id }}</td>
+            <td class="col-mono">{{ venda.data_venda.strftime('%d/%m/%Y %H:%M') }}</td>
+            <td>{{ venda.cliente }}</td>
+            <td class="col-num">{{ venda.total_itens }}</td>
+            <td class="col-num col-money">R$ {{ venda.total|moeda }}</td>
+            <td class="col-acoes">
+                <a href="{{ url_for('vendas.detalhe', id=venda.id) }}" class="btn btn-secondary btn-sm">Ver</a>
+                <form action="{{ url_for('vendas.excluir', id=venda.id) }}" method="POST"
+                      class="inline-form"
+                      onsubmit="return confirm('Excluir a venda #{{ venda.id }}?')">
+                    <button type="submit" class="btn btn-danger btn-sm">Excluir</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+{% else %}
+<p class="empty">Nenhuma venda registrada.</p>
+{% endif %}
+{% endblock %}
