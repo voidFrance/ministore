@@ -11,41 +11,33 @@ Sistema web com objetivo didático desenvolvido com Flask + MariaDB.
 
 ## Instalação
 
-### 1. Clone o repositório do professor
+### 1. Clone o repositório
 
 ```bash
-git clone https://github.com/gutosolar72/ministore.git
+git clone https://github.com/voidFrance/ministore.git
 cd ministore
 ```
 
-### 2. Desvincule do repositório original e conecte ao seu
-
-```bash
-git remote remove origin
-git remote add origin https://github.com/SEU_USUARIO/ministore.git
-git push -u origin main
-```
-
-### 3. Crie e ative o ambiente virtual
+### 2. Crie e ative o ambiente virtual
 
 ```bash
 python3 -m venv venv
 source venv/bin/activate
 ```
 
-### 4. Instale as dependências
+### 3. Instale as dependências
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 5. Configure o banco de dados
+### 4. Configure o banco de dados
 
 ```bash
 python3 setup.py
 ```
 
-### 6. Execute a aplicação
+### 5. Execute a aplicação
 
 ```bash
 python3 app.py
